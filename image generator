@@ -1,0 +1,1525 @@
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="A sophisticated AI Image Generator powered by Pollinations.ai. Generate cinematic, anime, 3D and photorealistic art in seconds."
+  />
+  <meta name="theme-color" content="#020617" />
+  <title>PrismAI — AI Image Generator</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            jakarta: ['"Plus Jakarta Sans"', 'sans-serif']
+          },
+          colors: {
+            ink: '#020617',
+            surface: '#0f172a',
+            primary: '#6366f1',
+            secondary: '#d946ef'
+          },
+          boxShadow: {
+            glow: '0 0 45px rgba(99, 102, 241, 0.22)',
+            glowPink: '0 0 45px rgba(217, 70, 239, 0.18)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Phosphor Icons CDN -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css"
+  />
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #020617;
+      --surface: #0f172a;
+      --primary: #6366f1;
+      --secondary: #d946ef;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.16), transparent 28%),
+        radial-gradient(circle at 90% 18%, rgba(217, 70, 239, 0.12), transparent 26%),
+        #020617;
+      color: #f8fafc;
+      font-family: "Plus Jakarta Sans", sans-serif;
+    }
+
+    ::selection {
+      background: rgba(99, 102, 241, 0.5);
+      color: #fff;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #020617;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #29324a;
+      border: 2px solid #020617;
+      border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3d4864;
+    }
+
+    .glass {
+      background: rgba(15, 23, 42, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .glass-dark {
+      background: rgba(2, 6, 23, 0.76);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .gradient-text {
+      background: linear-gradient(100deg, #c7d2fe 0%, #818cf8 32%, #e879f9 67%, #f0abfc 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .gradient-border {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .gradient-border::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.7), rgba(217, 70, 239, 0.45), transparent 70%);
+      opacity: 0.8;
+    }
+
+    .noise::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.025;
+      z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+    }
+
+    .hero-grid {
+      background-image:
+        linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+      background-size: 54px 54px;
+      mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+
+    .blob {
+      filter: blur(60px);
+      opacity: 0.32;
+      animation: blobFloat 9s ease-in-out infinite alternate;
+    }
+
+    .blob:nth-child(2) {
+      animation-delay: -3s;
+    }
+
+    @keyframes blobFloat {
+      from { transform: translate3d(-12px, -8px, 0) scale(1); }
+      to   { transform: translate3d(18px, 22px, 0) scale(1.12); }
+    }
+
+    .float-3d {
+      animation: float3d 6s ease-in-out infinite;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .float-3d.delay-1 { animation-delay: -1.8s; }
+    .float-3d.delay-2 { animation-delay: -3.4s; }
+    .float-3d.delay-3 { animation-delay: -4.7s; }
+
+    @keyframes float3d {
+      0%, 100% { transform: translateY(0) rotateX(0deg) rotateY(0deg); }
+      50% { transform: translateY(-18px) rotateX(9deg) rotateY(-9deg); }
+    }
+
+    .image-marquee {
+      display: flex;
+      width: max-content;
+      animation: marquee 30s linear infinite;
+    }
+
+    .image-marquee:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .feature-card::after,
+    .blog-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(99, 102, 241, 0.16), transparent 35%);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .feature-card:hover::after,
+    .blog-card:hover::after {
+      opacity: 1;
+    }
+
+    .gallery-card img,
+    .blog-card img {
+      transition: transform 0.7s cubic-bezier(.2,.8,.2,1), filter 0.5s ease;
+    }
+
+    .gallery-card:hover img,
+    .blog-card:hover img {
+      transform: scale(1.055);
+    }
+
+    .gallery-card .prompt-overlay {
+      transform: translateY(18px);
+      opacity: 0;
+      transition: 0.35s ease;
+    }
+
+    .gallery-card:hover .prompt-overlay {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .button-shine {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .button-shine::after {
+      content: "";
+      position: absolute;
+      top: -120%;
+      left: -30%;
+      width: 25%;
+      height: 340%;
+      transform: rotate(24deg);
+      background: linear-gradient(to right, transparent, rgba(255,255,255,.32), transparent);
+      transition: left 0.65s ease;
+    }
+
+    .button-shine:hover::after {
+      left: 115%;
+    }
+
+    .app-fade-in {
+      animation: appFade 0.45s ease both;
+    }
+
+    @keyframes appFade {
+      from { opacity: 0; transform: scale(0.99); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .spinner {
+      width: 58px;
+      height: 58px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: #818cf8;
+      border-right-color: #d946ef;
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .result-image {
+      animation: imageReveal 0.6s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    @keyframes imageReveal {
+      from { opacity: 0; transform: scale(0.965); filter: blur(10px); }
+      to { opacity: 1; transform: scale(1); filter: blur(0); }
+    }
+
+    .ratio-btn.active {
+      border-color: rgba(129, 140, 248, 0.95);
+      background: rgba(99, 102, 241, 0.18);
+      color: #c7d2fe;
+      box-shadow: 0 0 24px rgba(99, 102, 241, 0.15);
+    }
+
+    .history-item.active {
+      outline: 2px solid #818cf8;
+      outline-offset: 2px;
+    }
+
+    .sidebar-scroll {
+      scrollbar-width: thin;
+      scrollbar-color: #334155 transparent;
+    }
+
+    .canvas-checker {
+      background-image:
+        linear-gradient(45deg, rgba(255,255,255,.025) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255,255,255,.025) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(255,255,255,.025) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,.025) 75%);
+      background-size: 28px 28px;
+      background-position: 0 0, 0 14px, 14px -14px, -14px 0;
+    }
+
+    .toast {
+      animation: toastIn 0.35s ease both;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 767px) {
+      .image-marquee {
+        animation-duration: 22s;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="noise antialiased">
+  <!-- LANDING PAGE -->
+  <div id="landingPage">
+    <!-- Header -->
+    <header class="glass-dark fixed inset-x-0 top-0 z-50 border-x-0 border-t-0">
+      <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
+        <a href="#home" class="flex items-center gap-3" aria-label="PrismAI Home">
+          <span class="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 shadow-glow">
+            <i class="ph-fill ph-sparkle text-xl text-white"></i>
+          </span>
+          <span class="text-lg font-extrabold tracking-tight">Prism<span class="gradient-text">AI</span></span>
+        </a>
+
+        <nav class="hidden items-center gap-8 text-sm font-medium text-slate-300 md:flex">
+          <a class="transition hover:text-white" href="#features">Features</a>
+          <a class="transition hover:text-white" href="#gallery">Gallery</a>
+          <a class="transition hover:text-white" href="#blog">Blog</a>
+          <a class="transition hover:text-white" href="#about">About</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <button
+            class="open-app button-shine hidden rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-5 py-2.5 text-sm font-bold text-white shadow-glow transition hover:-translate-y-0.5 sm:inline-flex"
+          >
+            Start Creating
+          </button>
+          <button
+            id="mobileMenuButton"
+            class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-xl md:hidden"
+            aria-label="Open menu"
+          >
+            <i class="ph ph-list"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="mobileMenu" class="hidden border-t border-white/10 px-5 py-5 md:hidden">
+        <div class="flex flex-col gap-4 text-sm font-medium text-slate-300">
+          <a href="#features">Features</a>
+          <a href="#gallery">Gallery</a>
+          <a href="#blog">Blog</a>
+          <a href="#about">About</a>
+          <button class="open-app rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-5 py-3 font-bold text-white">
+            Start Creating
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section id="home" class="relative min-h-screen overflow-hidden pt-32">
+        <div class="hero-grid absolute inset-0"></div>
+        <div class="blob absolute -left-24 top-24 h-80 w-80 rounded-full bg-indigo-600"></div>
+        <div class="blob absolute -right-20 top-48 h-96 w-96 rounded-full bg-fuchsia-600"></div>
+
+        <!-- Floating icons -->
+        <div class="float-3d absolute left-[8%] top-48 hidden h-14 w-14 place-items-center rounded-2xl glass text-2xl text-indigo-300 shadow-glow sm:grid">
+          <i class="ph-fill ph-cube"></i>
+        </div>
+        <div class="float-3d delay-1 absolute right-[9%] top-44 hidden h-16 w-16 place-items-center rounded-2xl glass text-2xl text-fuchsia-300 shadow-glowPink md:grid">
+          <i class="ph-fill ph-image-square"></i>
+        </div>
+        <div class="float-3d delay-2 absolute left-[14%] top-[55%] hidden h-12 w-12 place-items-center rounded-full glass text-xl text-violet-300 lg:grid">
+          <i class="ph-fill ph-magic-wand"></i>
+        </div>
+        <div class="float-3d delay-3 absolute right-[15%] top-[58%] hidden h-12 w-12 place-items-center rounded-full glass text-xl text-pink-300 lg:grid">
+          <i class="ph-fill ph-lightning"></i>
+        </div>
+
+        <div class="relative z-10 mx-auto max-w-5xl px-5 text-center">
+          <div class="mx-auto mb-7 inline-flex items-center gap-2 rounded-full border border-indigo-400/20 bg-indigo-400/10 px-4 py-2 text-xs font-semibold text-indigo-200 shadow-glow">
+            <span class="relative flex h-2 w-2">
+              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
+              <span class="relative inline-flex h-2 w-2 rounded-full bg-indigo-400"></span>
+            </span>
+            Powered by Pollinations.ai
+          </div>
+
+          <h1 class="text-balance text-5xl font-extrabold leading-[1.05] tracking-[-0.05em] sm:text-6xl md:text-7xl lg:text-8xl">
+            Turn your imagination into
+            <span class="gradient-text block">stunning visuals.</span>
+          </h1>
+
+          <p class="mx-auto mt-7 max-w-2xl text-base leading-8 text-slate-400 sm:text-lg">
+            Describe any idea and transform it into cinematic, photorealistic, anime or 3D artwork in seconds—without complicated tools.
+          </p>
+
+          <div class="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <button
+              class="open-app button-shine inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-7 py-4 text-sm font-bold text-white shadow-glow transition hover:-translate-y-1 sm:w-auto"
+            >
+              <i class="ph-fill ph-sparkle text-lg"></i>
+              Generate Your First Image
+            </button>
+            <a
+              href="#gallery"
+              class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-7 py-4 text-sm font-bold text-slate-200 backdrop-blur-xl transition hover:border-white/20 hover:bg-white/10 sm:w-auto"
+            >
+              Explore Gallery
+              <i class="ph ph-arrow-down"></i>
+            </a>
+          </div>
+
+          <div class="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
+            <span class="inline-flex items-center gap-2"><i class="ph-fill ph-check-circle text-emerald-400"></i>No sign-up required</span>
+            <span class="inline-flex items-center gap-2"><i class="ph-fill ph-check-circle text-emerald-400"></i>Multiple aspect ratios</span>
+            <span class="inline-flex items-center gap-2"><i class="ph-fill ph-check-circle text-emerald-400"></i>Free to experiment</span>
+          </div>
+        </div>
+
+        <!-- Image strip -->
+        <div class="relative z-10 mt-20 overflow-hidden border-y border-white/10 bg-white/[0.025] py-5 backdrop-blur-sm">
+          <div class="pointer-events-none absolute inset-y-0 left-0 z-20 w-32 bg-gradient-to-r from-slate-950 to-transparent"></div>
+          <div class="pointer-events-none absolute inset-y-0 right-0 z-20 w-32 bg-gradient-to-l from-slate-950 to-transparent"></div>
+
+          <div class="image-marquee gap-5 px-2">
+            <!-- Set 1 -->
+            <img class="h-48 w-72 rounded-2xl object-cover shadow-2xl" src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=85" alt="Fantasy sky" />
+            <img class="h-48 w-72 rounded-2xl object-cover shadow-2xl" src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=900&q=85" alt="Mystical forest" />
+            <img class="h-48 w-72 rounded-2xl object-cover shadow-2xl" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=85" alt="Cinematic landscape" />
+            <img class="h-48 w-72 rounded-2xl object-cover shadow-2xl" src="https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?auto=format&fit=crop&w=900&q=85" alt="Galaxy" />
+            <img class="h-48 w-72 rounded-2xl object-cover shadow-2xl" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=85" alt="Dreamlike mountain" />
+            <img class="h-48 w-72 rounded-2xl object-cover shadow-2xl" src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=85" alt="Fantasy sky duplicate" />
+            <!-- Set 2 (duplicate for seamless loop) -->
+            <img class="h-48 w-72 rounded-2xl object-cover shadow-2xl" src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=85" alt="Fantasy sky" />
+            <img class="h-48 w-72 rounded-2xl object-cover shadow-2xl" src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=900&q=85" alt="Mystical forest" />
+            <img class="h-48 w-72 rounded-2xl object-cover shadow-2xl" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=85" alt="Cinematic landscape" />
+            <img class="h-48 w-72 rounded-2xl object-cover shadow-2xl" src="https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?auto=format&fit=crop&w=900&q=85" alt="Galaxy" />
+            <img class="h-48 w-72 rounded-2xl object-cover shadow-2xl" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=85" alt="Dreamlike mountain" />
+            <img class="h-48 w-72 rounded-2xl object-cover shadow-2xl" src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=85" alt="Fantasy sky duplicate" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section id="features" class="relative px-5 py-28">
+        <div class="mx-auto max-w-7xl">
+          <div class="reveal mx-auto max-w-3xl text-center">
+            <span class="text-sm font-bold uppercase tracking-[0.24em] text-indigo-400">Built for imagination</span>
+            <h2 class="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl">Everything you need to create faster.</h2>
+            <p class="mt-5 leading-8 text-slate-400">A focused creative workflow with powerful controls, without the clutter of traditional design software.</p>
+          </div>
+
+          <div class="mt-14 grid gap-6 md:grid-cols-3">
+            <article class="feature-card reveal relative overflow-hidden rounded-3xl glass p-8 transition duration-500 hover:-translate-y-2 hover:border-indigo-400/30">
+              <div class="grid h-14 w-14 place-items-center rounded-2xl bg-indigo-500/15 text-2xl text-indigo-300">
+                <i class="ph-fill ph-lightning"></i>
+              </div>
+              <h3 class="mt-7 text-xl font-bold">Lightning Fast</h3>
+              <p class="mt-3 leading-7 text-slate-400">Turn a written idea into a polished visual in seconds with an optimized generation workflow.</p>
+              <div class="mt-7 flex items-center gap-2 text-sm font-semibold text-indigo-300">
+                Instant workflow <i class="ph ph-arrow-right"></i>
+              </div>
+            </article>
+
+            <article class="feature-card reveal relative overflow-hidden rounded-3xl glass p-8 transition duration-500 hover:-translate-y-2 hover:border-fuchsia-400/30">
+              <div class="grid h-14 w-14 place-items-center rounded-2xl bg-fuchsia-500/15 text-2xl text-fuchsia-300">
+                <i class="ph-fill ph-palette"></i>
+              </div>
+              <h3 class="mt-7 text-xl font-bold">Infinite Styles</h3>
+              <p class="mt-3 leading-7 text-slate-400">Create cinematic scenes, anime characters, product shots, 3D renders and much more.</p>
+              <div class="mt-7 flex items-center gap-2 text-sm font-semibold text-fuchsia-300">
+                Explore styles <i class="ph ph-arrow-right"></i>
+              </div>
+            </article>
+
+            <article class="feature-card reveal relative overflow-hidden rounded-3xl glass p-8 transition duration-500 hover:-translate-y-2 hover:border-violet-400/30">
+              <div class="grid h-14 w-14 place-items-center rounded-2xl bg-violet-500/15 text-2xl text-violet-300">
+                <i class="ph-fill ph-gift"></i>
+              </div>
+              <h3 class="mt-7 text-xl font-bold">Free to Create</h3>
+              <p class="mt-3 leading-7 text-slate-400">Start experimenting immediately. Your generation history stays saved in your own browser.</p>
+              <div class="mt-7 flex items-center gap-2 text-sm font-semibold text-violet-300">
+                Start for free <i class="ph ph-arrow-right"></i>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Gallery -->
+      <section id="gallery" class="border-y border-white/5 bg-slate-950/40 px-5 py-28">
+        <div class="mx-auto max-w-7xl">
+          <div class="reveal flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div class="max-w-2xl">
+              <span class="text-sm font-bold uppercase tracking-[0.24em] text-fuchsia-400">Community gallery</span>
+              <h2 class="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl">Ideas brought to life.</h2>
+              <p class="mt-5 leading-8 text-slate-400">Hover over an artwork to reveal the prompt that inspired it.</p>
+            </div>
+            <button class="open-app inline-flex items-center gap-2 text-sm font-bold text-indigo-300 transition hover:text-indigo-200">
+              Create your own <i class="ph ph-arrow-up-right text-lg"></i>
+            </button>
+          </div>
+
+          <div class="mt-12 grid auto-rows-[220px] grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <article class="gallery-card reveal group relative overflow-hidden rounded-3xl sm:row-span-2">
+              <img class="h-full w-full object-cover" src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1000&q=90" alt="Mystical glowing forest" />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/10 to-transparent"></div>
+              <div class="prompt-overlay absolute inset-x-5 bottom-5 rounded-2xl glass p-4">
+                <p class="text-xs font-medium leading-5 text-slate-200">“Ancient bioluminescent forest, magical fog, cinematic volumetric lighting”</p>
+              </div>
+            </article>
+
+            <article class="gallery-card reveal group relative overflow-hidden rounded-3xl lg:col-span-2">
+              <img class="h-full w-full object-cover" src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1200&q=90" alt="Dreamy night sky" />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+              <div class="prompt-overlay absolute inset-x-5 bottom-5 rounded-2xl glass p-4">
+                <p class="text-xs font-medium leading-5 text-slate-200">“Surreal cosmic valley under a violet galaxy, dreamscape, ultra detailed”</p>
+              </div>
+            </article>
+
+            <article class="gallery-card reveal group relative overflow-hidden rounded-3xl">
+              <img class="h-full w-full object-cover" src="https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?auto=format&fit=crop&w=900&q=90" alt="Space nebula" />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+              <div class="prompt-overlay absolute inset-x-4 bottom-4 rounded-xl glass p-3">
+                <p class="text-[11px] font-medium leading-5 text-slate-200">“Deep space nebula, vivid cosmic dust, astrophotography”</p>
+              </div>
+            </article>
+
+            <article class="gallery-card reveal group relative overflow-hidden rounded-3xl">
+              <img class="h-full w-full object-cover" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=900&q=90" alt="Epic canyon" />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+              <div class="prompt-overlay absolute inset-x-4 bottom-4 rounded-xl glass p-3">
+                <p class="text-[11px] font-medium leading-5 text-slate-200">“Epic fantasy canyon, golden light, matte painting”</p>
+              </div>
+            </article>
+
+            <article class="gallery-card reveal group relative overflow-hidden rounded-3xl sm:col-span-2 lg:col-span-2">
+              <img class="h-full w-full object-cover" src="https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=1200&q=90" alt="Starry space" />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+              <div class="prompt-overlay absolute inset-x-5 bottom-5 rounded-2xl glass p-4">
+                <p class="text-xs font-medium leading-5 text-slate-200">“Infinite star field, rich colors, cinematic telescope photography”</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Blog -->
+      <section id="blog" class="px-5 py-28">
+        <div class="mx-auto max-w-7xl">
+          <div class="reveal mx-auto max-w-3xl text-center">
+            <span class="text-sm font-bold uppercase tracking-[0.24em] text-indigo-400">Creative journal</span>
+            <h2 class="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl">Level up your prompts.</h2>
+            <p class="mt-5 leading-8 text-slate-400">Practical guides, inspiration and workflows for creating stronger AI-generated images.</p>
+          </div>
+
+          <div class="mt-14 grid gap-6 lg:grid-cols-3">
+            <article class="blog-card reveal relative overflow-hidden rounded-3xl glass transition duration-500 hover:-translate-y-2">
+              <div class="h-56 overflow-hidden">
+                <img class="h-full w-full object-cover" src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=900&q=85" alt="Creative technology" />
+              </div>
+              <div class="p-7">
+                <div class="text-xs font-bold uppercase tracking-widest text-indigo-400">Prompting • 6 min</div>
+                <h3 class="mt-3 text-xl font-bold leading-8">The anatomy of a powerful image prompt</h3>
+                <p class="mt-3 text-sm leading-7 text-slate-400">Learn how subject, environment, lighting, camera and mood work together.</p>
+                <a href="#" class="mt-6 inline-flex items-center gap-2 text-sm font-bold text-white">Read More <i class="ph ph-arrow-up-right"></i></a>
+              </div>
+            </article>
+
+            <article class="blog-card reveal relative overflow-hidden rounded-3xl glass transition duration-500 hover:-translate-y-2">
+              <div class="h-56 overflow-hidden">
+                <img class="h-full w-full object-cover" src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=85" alt="Cinematic lighting" />
+              </div>
+              <div class="p-7">
+                <div class="text-xs font-bold uppercase tracking-widest text-fuchsia-400">Lighting • 8 min</div>
+                <h3 class="mt-3 text-xl font-bold leading-8">Cinematic lighting terms that transform results</h3>
+                <p class="mt-3 text-sm leading-7 text-slate-400">Use rim light, volumetric rays, softbox and golden hour like a visual director.</p>
+                <a href="#" class="mt-6 inline-flex items-center gap-2 text-sm font-bold text-white">Read More <i class="ph ph-arrow-up-right"></i></a>
+              </div>
+            </article>
+
+            <article class="blog-card reveal relative overflow-hidden rounded-3xl glass transition duration-500 hover:-translate-y-2">
+              <div class="h-56 overflow-hidden">
+                <img class="h-full w-full object-cover" src="https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=900&q=85" alt="AI creative workflow" />
+              </div>
+              <div class="p-7">
+                <div class="text-xs font-bold uppercase tracking-widest text-violet-400">Workflow • 5 min</div>
+                <h3 class="mt-3 text-xl font-bold leading-8">From rough idea to polished visual in 3 steps</h3>
+                <p class="mt-3 text-sm leading-7 text-slate-400">A repeatable workflow for exploring, refining and exporting your final artwork.</p>
+                <a href="#" class="mt-6 inline-flex items-center gap-2 text-sm font-bold text-white">Read More <i class="ph ph-arrow-up-right"></i></a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Trust / API -->
+      <section id="about" class="px-5 pb-28">
+        <div class="reveal mx-auto grid max-w-7xl gap-8 rounded-[2rem] border border-white/10 bg-gradient-to-br from-indigo-500/10 via-slate-900/80 to-fuchsia-500/10 p-6 shadow-glow md:p-10 lg:grid-cols-[0.9fr_1.1fr] lg:p-14">
+          <div class="flex flex-col justify-center">
+            <div class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-bold text-emerald-300">
+              <i class="ph-fill ph-shield-check"></i>
+              Open creative ecosystem
+            </div>
+            <h2 class="mt-6 text-3xl font-extrabold tracking-tight sm:text-4xl">Powered by Pollinations.ai</h2>
+            <p class="mt-5 max-w-xl leading-8 text-slate-400">
+              PrismAI turns your prompt into a secure image request and displays the result directly in your browser. Your local history stays on your device using LocalStorage.
+            </p>
+            <div class="mt-8 grid grid-cols-2 gap-4 text-sm">
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div class="text-2xl font-extrabold text-white">100%</div>
+                <div class="mt-1 text-slate-500">Browser based</div>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div class="text-2xl font-extrabold text-white">2</div>
+                <div class="mt-1 text-slate-500">Generation models</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="gradient-border overflow-hidden rounded-3xl bg-slate-950/90">
+            <div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
+              <div class="flex gap-2">
+                <span class="h-3 w-3 rounded-full bg-rose-400"></span>
+                <span class="h-3 w-3 rounded-full bg-amber-400"></span>
+                <span class="h-3 w-3 rounded-full bg-emerald-400"></span>
+              </div>
+              <span class="text-xs font-semibold text-slate-500">JavaScript</span>
+            </div>
+            <pre class="overflow-x-auto p-5 text-sm leading-7 text-slate-300 sm:p-7"><code><span class="text-fuchsia-300">const</span> prompt = <span class="text-emerald-300">"A futuristic city at night"</span>;
+<span class="text-fuchsia-300">const</span> url =
+  <span class="text-emerald-300">`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}
+  ?width=1024&height=1024&seed=42&model=flux`</span>;
+
+image.src = url;</code></pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-slate-950/70 px-5 pt-20">
+      <div class="mx-auto max-w-7xl">
+        <div class="grid gap-12 border-b border-white/10 pb-14 lg:grid-cols-[1.3fr_.7fr_.7fr_.7fr]">
+          <div>
+            <a href="#home" class="flex items-center gap-3">
+              <span class="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 shadow-glow">
+                <i class="ph-fill ph-sparkle text-xl"></i>
+              </span>
+              <span class="text-xl font-extrabold">Prism<span class="gradient-text">AI</span></span>
+            </a>
+            <p class="mt-5 max-w-md text-sm leading-7 text-slate-400">Create extraordinary images from simple ideas. Designed for creators, marketers, students and dreamers.</p>
+
+            <form id="newsletterForm" class="mt-7 flex max-w-md gap-2 rounded-2xl border border-white/10 bg-white/5 p-2">
+              <input required type="email" placeholder="Enter your email" class="min-w-0 flex-1 bg-transparent px-3 text-sm text-white outline-none placeholder:text-slate-600" />
+              <button class="button-shine rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-4 py-3 text-sm font-bold">Subscribe</button>
+            </form>
+          </div>
+
+          <div>
+            <h3 class="font-bold">Product</h3>
+            <div class="mt-5 flex flex-col gap-3 text-sm text-slate-400">
+              <a href="#features" class="hover:text-white">Features</a>
+              <a href="#gallery" class="hover:text-white">Gallery</a>
+              <button class="open-app w-fit hover:text-white">Generator</button>
+              <a href="#" class="hover:text-white">Pricing</a>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-bold">Resources</h3>
+            <div class="mt-5 flex flex-col gap-3 text-sm text-slate-400">
+              <a href="#blog" class="hover:text-white">Blog</a>
+              <a href="#" class="hover:text-white">Prompt Guide</a>
+              <a href="#" class="hover:text-white">API Docs</a>
+              <a href="#" class="hover:text-white">Community</a>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-bold">Company</h3>
+            <div class="mt-5 flex flex-col gap-3 text-sm text-slate-400">
+              <a href="#about" class="hover:text-white">About</a>
+              <a href="#" class="hover:text-white">Contact</a>
+              <a href="#" class="hover:text-white">Privacy</a>
+              <a href="#" class="hover:text-white">Terms</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center justify-between gap-5 py-8 text-sm text-slate-500 sm:flex-row">
+          <p>© 2026 PrismAI. Crafted for creative minds.</p>
+          <div class="flex items-center gap-3">
+            <a href="#" aria-label="X / Twitter" class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:text-white"><i class="ph-fill ph-x-logo"></i></a>
+            <a href="#" aria-label="Instagram" class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:text-white"><i class="ph-fill ph-instagram-logo"></i></a>
+            <a href="#" aria-label="GitHub" class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:text-white"><i class="ph-fill ph-github-logo"></i></a>
+            <a href="#" aria-label="Discord" class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:text-white"><i class="ph-fill ph-discord-logo"></i></a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- FULL-SCREEN GENERATOR APP -->
+  <section id="appInterface" class="fixed inset-0 z-[100] hidden overflow-hidden bg-[#020617]">
+    <!-- App top bar -->
+    <header class="glass-dark absolute inset-x-0 top-0 z-40 flex h-16 items-center justify-between border-x-0 border-t-0 px-4 md:px-6">
+      <div class="flex items-center gap-3">
+        <button id="mobileSidebarButton" class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 md:hidden" aria-label="Open controls">
+          <i class="ph ph-sliders-horizontal text-lg"></i>
+        </button>
+        <div class="flex items-center gap-3">
+          <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-500">
+            <i class="ph-fill ph-sparkle"></i>
+          </span>
+          <div>
+            <div class="text-sm font-extrabold">PrismAI Studio</div>
+            <div class="hidden text-[10px] font-medium text-emerald-400 sm:block">● Generator online</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="clearCanvasButton" class="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-bold text-slate-300 transition hover:bg-white/10 sm:inline-flex">
+          <i class="ph ph-eraser"></i> Clear
+        </button>
+        <button id="backHomeButton" class="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-bold text-slate-300 transition hover:bg-white/10">
+          <i class="ph ph-house"></i>
+          <span class="hidden sm:inline">Home</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sidebar overlay for mobile -->
+    <button id="sidebarOverlay" class="absolute inset-0 z-40 hidden bg-black/60 backdrop-blur-sm md:hidden" aria-label="Close controls"></button>
+
+    <!-- Sidebar -->
+    <aside id="appSidebar" class="glass-dark sidebar-scroll absolute bottom-0 left-0 top-16 z-50 w-[310px] -translate-x-full overflow-y-auto border-b-0 border-l-0 p-5 transition-transform duration-300 md:translate-x-0">
+      <div class="mb-5 flex items-center justify-between md:hidden">
+        <h2 class="font-bold">Generation Controls</h2>
+        <button id="closeSidebarButton" class="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/5" aria-label="Close controls">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+
+      <!-- Ratio -->
+      <div>
+        <div class="mb-3 flex items-center justify-between">
+          <label class="text-xs font-bold uppercase tracking-widest text-slate-400">Aspect Ratio</label>
+          <span id="ratioLabel" class="text-[11px] font-semibold text-indigo-300">1:1</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <button data-ratio="square" class="ratio-btn active rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-xs font-semibold text-slate-400 transition">
+            <span class="mx-auto mb-2 block h-5 w-5 rounded-[4px] border border-current"></span>Square
+          </button>
+          <button data-ratio="wide" class="ratio-btn rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-xs font-semibold text-slate-400 transition">
+            <span class="mx-auto mb-2 block h-4 w-6 rounded-[4px] border border-current"></span>Wide
+          </button>
+          <button data-ratio="portrait" class="ratio-btn rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-xs font-semibold text-slate-400 transition">
+            <span class="mx-auto mb-2 block h-6 w-4 rounded-[4px] border border-current"></span>Portrait
+          </button>
+        </div>
+      </div>
+
+      <!-- Style -->
+      <div class="mt-6">
+        <label for="styleSelect" class="mb-3 block text-xs font-bold uppercase tracking-widest text-slate-400">Visual Style</label>
+        <div class="relative">
+          <select id="styleSelect" class="w-full appearance-none rounded-xl border border-white/10 bg-slate-900/80 px-4 py-3.5 pr-10 text-sm font-semibold text-slate-200 outline-none transition focus:border-indigo-400/70">
+            <option value="Cinematic">Cinematic</option>
+            <option value="Photorealistic">Photorealistic</option>
+            <option value="Anime">Anime</option>
+            <option value="3D Render">3D Render</option>
+            <option value="Digital Art">Digital Art</option>
+            <option value="Watercolor">Watercolor</option>
+            <option value="Cyberpunk">Cyberpunk</option>
+            <option value="Minimalist">Minimalist</option>
+          </select>
+          <i class="ph ph-caret-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+        </div>
+      </div>
+
+      <!-- Advanced -->
+      <div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035]">
+        <button id="advancedToggle" class="flex w-full items-center justify-between px-4 py-4 text-left">
+          <span class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
+            <i class="ph ph-sliders"></i> Advanced
+          </span>
+          <i id="advancedCaret" class="ph ph-caret-down text-slate-500 transition"></i>
+        </button>
+
+        <div id="advancedPanel" class="hidden space-y-4 border-t border-white/10 p-4">
+          <div>
+            <div class="mb-2 flex items-center justify-between">
+              <label for="seedInput" class="text-xs font-semibold text-slate-400">Seed</label>
+              <button id="randomSeedButton" class="text-[11px] font-semibold text-indigo-300 hover:text-indigo-200">Randomize</button>
+            </div>
+            <input id="seedInput" type="number" min="0" placeholder="Random" class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-3 text-sm outline-none transition focus:border-indigo-400/70" />
+          </div>
+
+          <div>
+            <label for="modelSelect" class="mb-2 block text-xs font-semibold text-slate-400">Model</label>
+            <select id="modelSelect" class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-3 text-sm outline-none transition focus:border-indigo-400/70">
+              <option value="flux">Flux — Quality</option>
+              <option value="turbo">Turbo — Faster</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="negativePrompt" class="mb-2 block text-xs font-semibold text-slate-400">Negative Prompt</label>
+            <textarea id="negativePrompt" rows="3" placeholder="blur, low quality, distorted..." class="w-full resize-none rounded-xl border border-white/10 bg-slate-950/70 px-3 py-3 text-sm outline-none transition placeholder:text-slate-700 focus:border-indigo-400/70"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="mt-7">
+        <div class="mb-3 flex items-center justify-between">
+          <label class="text-xs font-bold uppercase tracking-widest text-slate-400">History</label>
+          <button id="clearHistoryButton" class="text-[11px] font-semibold text-slate-600 transition hover:text-rose-400">Clear all</button>
+        </div>
+        <div id="historyGrid" class="grid grid-cols-2 gap-2"></div>
+        <div id="emptyHistory" class="rounded-2xl border border-dashed border-white/10 px-4 py-6 text-center text-xs leading-5 text-slate-600">
+          Your generated images will appear here.
+        </div>
+      </div>
+
+      <div class="mt-8 rounded-2xl border border-indigo-400/15 bg-indigo-500/10 p-4">
+        <div class="flex items-start gap-3">
+          <i class="ph-fill ph-lightbulb text-lg text-indigo-300"></i>
+          <p class="text-xs leading-5 text-indigo-100/70">Tip: mention lighting, camera angle, colors and mood for stronger results.</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main workspace -->
+    <main class="absolute bottom-0 left-0 right-0 top-16 overflow-hidden md:left-[310px]">
+      <div class="canvas-checker relative flex h-full items-center justify-center px-4 pb-32 pt-6 sm:px-8 sm:pb-36">
+        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,.08),transparent_45%)]"></div>
+
+        <div id="canvasFrame" class="group relative z-10 flex aspect-square max-h-[calc(100vh-12rem)] w-full max-w-4xl items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-slate-950/75 shadow-2xl transition-all duration-500">
+          <!-- Placeholder -->
+          <div id="placeholderState" class="max-w-md px-7 text-center">
+            <div class="mx-auto grid h-24 w-24 place-items-center rounded-[2rem] border border-indigo-400/15 bg-gradient-to-br from-indigo-500/15 to-fuchsia-500/10 text-4xl text-indigo-300 shadow-glow">
+              <i class="ph-fill ph-image-square"></i>
+            </div>
+            <h2 class="mt-7 text-2xl font-extrabold">Create something extraordinary</h2>
+            <p class="mt-3 text-sm leading-7 text-slate-500">Write a detailed prompt below, choose your style and press Generate.</p>
+            <div class="mt-6 flex flex-wrap justify-center gap-2">
+              <button class="prompt-chip rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-semibold text-slate-400 transition hover:border-indigo-400/40 hover:text-white">Futuristic city</button>
+              <button class="prompt-chip rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-semibold text-slate-400 transition hover:border-indigo-400/40 hover:text-white">Fantasy castle</button>
+              <button class="prompt-chip rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-semibold text-slate-400 transition hover:border-indigo-400/40 hover:text-white">Product photo</button>
+            </div>
+          </div>
+
+          <!-- Loading -->
+          <div id="loadingState" class="hidden text-center">
+            <div class="spinner mx-auto"></div>
+            <h3 class="mt-6 text-lg font-bold">Creating your image...</h3>
+            <p class="mt-2 text-sm text-slate-500">The model is turning your prompt into pixels.</p>
+          </div>
+
+          <!-- Result -->
+          <img id="resultImage" class="result-image hidden h-full w-full object-contain" alt="AI generated result" />
+
+          <!-- Result actions -->
+          <div id="resultActions" class="absolute inset-x-0 bottom-0 hidden translate-y-3 justify-center gap-2 bg-gradient-to-t from-slate-950 via-slate-950/75 to-transparent px-5 pb-5 pt-20 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:justify-end">
+            <button id="downloadButton" class="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/75 px-4 py-3 text-xs font-bold text-white backdrop-blur-xl transition hover:bg-indigo-500">
+              <i class="ph ph-download-simple"></i> Download
+            </button>
+            <button id="shareButton" class="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/75 px-4 py-3 text-xs font-bold text-white backdrop-blur-xl transition hover:bg-fuchsia-500">
+              <i class="ph ph-share-network"></i> Share
+            </button>
+          </div>
+
+          <!-- Image badge -->
+          <div id="resultBadge" class="absolute left-4 top-4 hidden rounded-full border border-white/10 bg-slate-950/70 px-3 py-2 text-[10px] font-bold text-slate-300 backdrop-blur-xl"></div>
+        </div>
+      </div>
+
+      <!-- Floating input bar -->
+      <div class="absolute inset-x-0 bottom-0 z-30 px-3 pb-3 sm:px-6 sm:pb-5">
+        <div class="glass mx-auto max-w-5xl rounded-3xl p-2.5 shadow-2xl shadow-indigo-950/40 sm:p-3">
+          <div class="flex items-end gap-2">
+            <div class="min-w-0 flex-1">
+              <label for="promptInput" class="sr-only">Image prompt</label>
+              <textarea
+                id="promptInput"
+                rows="1"
+                placeholder="Describe the image you want to create..."
+                class="max-h-32 min-h-[52px] w-full resize-none bg-transparent px-3 py-3 text-sm leading-6 text-white outline-none placeholder:text-slate-600 sm:px-4"
+              ></textarea>
+            </div>
+
+            <button id="enhanceButton" title="Magic Enhance" class="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-2xl border border-fuchsia-400/15 bg-fuchsia-500/10 text-xl text-fuchsia-300 transition hover:-translate-y-0.5 hover:bg-fuchsia-500/20">
+              <i class="ph-fill ph-magic-wand"></i>
+            </button>
+
+            <button id="generateButton" class="button-shine inline-flex h-[52px] shrink-0 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-5 text-sm font-extrabold text-white shadow-glow transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 sm:px-7">
+              <i class="ph-fill ph-sparkle"></i>
+              <span class="hidden sm:inline">Generate</span>
+            </button>
+          </div>
+
+          <div class="hidden items-center justify-between border-t border-white/5 px-4 pt-2 text-[10px] text-slate-600 sm:flex">
+            <span>Press <kbd class="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-slate-400">Ctrl + Enter</kbd> to generate</span>
+            <span id="promptCounter">0 / 1000</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </section>
+
+  <!-- Toast container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-[200] flex w-[min(360px,calc(100%-2rem))] flex-col gap-3"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      // ---------- DOM ----------
+      const landingPage = document.getElementById("landingPage");
+      const appInterface = document.getElementById("appInterface");
+      const openAppButtons = document.querySelectorAll(".open-app");
+      const backHomeButton = document.getElementById("backHomeButton");
+      const mobileMenuButton = document.getElementById("mobileMenuButton");
+      const mobileMenu = document.getElementById("mobileMenu");
+
+      const appSidebar = document.getElementById("appSidebar");
+      const sidebarOverlay = document.getElementById("sidebarOverlay");
+      const mobileSidebarButton = document.getElementById("mobileSidebarButton");
+      const closeSidebarButton = document.getElementById("closeSidebarButton");
+
+      const ratioButtons = document.querySelectorAll(".ratio-btn");
+      const ratioLabel = document.getElementById("ratioLabel");
+      const canvasFrame = document.getElementById("canvasFrame");
+      const styleSelect = document.getElementById("styleSelect");
+      const seedInput = document.getElementById("seedInput");
+      const randomSeedButton = document.getElementById("randomSeedButton");
+      const modelSelect = document.getElementById("modelSelect");
+      const negativePrompt = document.getElementById("negativePrompt");
+
+      const advancedToggle = document.getElementById("advancedToggle");
+      const advancedPanel = document.getElementById("advancedPanel");
+      const advancedCaret = document.getElementById("advancedCaret");
+
+      const placeholderState = document.getElementById("placeholderState");
+      const loadingState = document.getElementById("loadingState");
+      const resultImage = document.getElementById("resultImage");
+      const resultActions = document.getElementById("resultActions");
+      const resultBadge = document.getElementById("resultBadge");
+
+      const promptInput = document.getElementById("promptInput");
+      const promptCounter = document.getElementById("promptCounter");
+      const enhanceButton = document.getElementById("enhanceButton");
+      const generateButton = document.getElementById("generateButton");
+      const downloadButton = document.getElementById("downloadButton");
+      const shareButton = document.getElementById("shareButton");
+      const clearCanvasButton = document.getElementById("clearCanvasButton");
+
+      const historyGrid = document.getElementById("historyGrid");
+      const emptyHistory = document.getElementById("emptyHistory");
+      const clearHistoryButton = document.getElementById("clearHistoryButton");
+      const toastContainer = document.getElementById("toastContainer");
+
+      // ---------- State ----------
+      const HISTORY_KEY = "prismai_generation_history_v1";
+      const ratioMap = {
+        square: { width: 1024, height: 1024, label: "1:1", className: "aspect-square" },
+        wide: { width: 1280, height: 720, label: "16:9", className: "aspect-video" },
+        portrait: { width: 768, height: 1152, label: "2:3", className: "aspect-[2/3]" }
+      };
+
+      let state = {
+        ratio: "square",
+        currentImageUrl: "",
+        currentPrompt: "",
+        currentHistoryId: null,
+        isLoading: false,
+        history: loadHistory()
+      };
+
+      // ---------- Helpers ----------
+      function showToast(message, type = "info") {
+        const iconMap = {
+          success: "ph-check-circle",
+          error: "ph-warning-circle",
+          info: "ph-info"
+        };
+        const colorMap = {
+          success: "text-emerald-300 border-emerald-400/20",
+          error: "text-rose-300 border-rose-400/20",
+          info: "text-indigo-300 border-indigo-400/20"
+        };
+
+        const toast = document.createElement("div");
+        toast.className = `toast glass flex items-start gap-3 rounded-2xl border p-4 shadow-2xl ${colorMap[type]}`;
+        toast.innerHTML = `
+          <i class="ph-fill ${iconMap[type]} mt-0.5 text-lg"></i>
+          <p class="flex-1 text-sm leading-6 text-slate-200">${escapeHTML(message)}</p>
+          <button class="text-slate-500 hover:text-white" aria-label="Close notification"><i class="ph ph-x"></i></button>
+        `;
+        toast.querySelector("button").addEventListener("click", () => toast.remove());
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.style.transform = "translateY(8px)";
+          setTimeout(() => toast.remove(), 250);
+        }, 3500);
+      }
+
+      function escapeHTML(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function loadHistory() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveHistory() {
+        try {
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(state.history.slice(0, 24)));
+        } catch (error) {
+          console.warn("Could not save history:", error);
+          showToast("Browser storage is unavailable. History was not saved.", "error");
+        }
+      }
+
+      function randomSeed() {
+        return Math.floor(Math.random() * 999999999);
+      }
+
+      function resizePromptInput() {
+        promptInput.style.height = "auto";
+        promptInput.style.height = `${Math.min(promptInput.scrollHeight, 128)}px`;
+        promptCounter.textContent = `${promptInput.value.length} / 1000`;
+      }
+
+      function setLoading(loading) {
+        state.isLoading = loading;
+        generateButton.disabled = loading;
+        enhanceButton.disabled = loading;
+
+        if (loading) {
+          placeholderState.classList.add("hidden");
+          resultImage.classList.add("hidden");
+          resultActions.classList.add("hidden");
+          resultActions.classList.remove("flex");
+          resultBadge.classList.add("hidden");
+          loadingState.classList.remove("hidden");
+          generateButton.innerHTML = '<i class="ph ph-spinner animate-spin"></i><span class="hidden sm:inline">Generating</span>';
+        } else {
+          loadingState.classList.add("hidden");
+          generateButton.innerHTML = '<i class="ph-fill ph-sparkle"></i><span class="hidden sm:inline">Generate</span>';
+        }
+      }
+
+      function resetCanvas() {
+        state.currentImageUrl = "";
+        state.currentPrompt = "";
+        state.currentHistoryId = null;
+        resultImage.removeAttribute("src");
+        resultImage.classList.add("hidden");
+        resultActions.classList.add("hidden");
+        resultActions.classList.remove("flex");
+        resultBadge.classList.add("hidden");
+        loadingState.classList.add("hidden");
+        placeholderState.classList.remove("hidden");
+        document.querySelectorAll(".history-item").forEach(item => item.classList.remove("active"));
+      }
+
+      // ---------- Landing / App transition ----------
+      function openApp() {
+        landingPage.classList.add("hidden");
+        appInterface.classList.remove("hidden");
+        appInterface.classList.add("app-fade-in");
+        document.body.style.overflow = "hidden";
+        mobileMenu.classList.add("hidden");
+        setTimeout(() => promptInput.focus(), 250);
+      }
+
+      function closeApp() {
+        closeMobileSidebar();
+        appInterface.classList.add("hidden");
+        appInterface.classList.remove("app-fade-in");
+        landingPage.classList.remove("hidden");
+        document.body.style.overflow = "";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      openAppButtons.forEach(button => button.addEventListener("click", openApp));
+      backHomeButton.addEventListener("click", closeApp);
+      mobileMenuButton.addEventListener("click", () => mobileMenu.classList.toggle("hidden"));
+
+      // ---------- Mobile sidebar ----------
+      function openMobileSidebar() {
+        appSidebar.classList.remove("-translate-x-full");
+        sidebarOverlay.classList.remove("hidden");
+      }
+
+      function closeMobileSidebar() {
+        if (window.innerWidth < 768) {
+          appSidebar.classList.add("-translate-x-full");
+          sidebarOverlay.classList.add("hidden");
+        }
+      }
+
+      mobileSidebarButton.addEventListener("click", openMobileSidebar);
+      closeSidebarButton.addEventListener("click", closeMobileSidebar);
+      sidebarOverlay.addEventListener("click", closeMobileSidebar);
+
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 768) {
+          appSidebar.classList.remove("-translate-x-full");
+          sidebarOverlay.classList.add("hidden");
+        } else if (sidebarOverlay.classList.contains("hidden")) {
+          appSidebar.classList.add("-translate-x-full");
+        }
+      });
+
+      // ---------- Ratio ----------
+      function setRatio(ratio) {
+        if (!ratioMap[ratio]) return;
+        state.ratio = ratio;
+        ratioLabel.textContent = ratioMap[ratio].label;
+
+        Object.values(ratioMap).forEach(config => canvasFrame.classList.remove(config.className));
+        canvasFrame.classList.add(ratioMap[ratio].className);
+
+        ratioButtons.forEach(button => {
+          button.classList.toggle("active", button.dataset.ratio === ratio);
+        });
+      }
+
+      ratioButtons.forEach(button => {
+        button.addEventListener("click", () => setRatio(button.dataset.ratio));
+      });
+
+      // ---------- Advanced ----------
+      advancedToggle.addEventListener("click", () => {
+        advancedPanel.classList.toggle("hidden");
+        advancedCaret.classList.toggle("rotate-180");
+      });
+
+      randomSeedButton.addEventListener("click", () => {
+        seedInput.value = randomSeed();
+        showToast("A new random seed was selected.", "info");
+      });
+
+      // ---------- Prompt ----------
+      promptInput.addEventListener("input", () => {
+        if (promptInput.value.length > 1000) {
+          promptInput.value = promptInput.value.slice(0, 1000);
+        }
+        resizePromptInput();
+      });
+
+      promptInput.addEventListener("keydown", event => {
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+          event.preventDefault();
+          generateImage();
+        }
+      });
+
+      document.querySelectorAll(".prompt-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          const examples = {
+            "Futuristic city": "A futuristic neon city floating above the clouds at night, flying vehicles, cinematic wide shot",
+            "Fantasy castle": "A majestic fantasy castle on a mountain, waterfalls, dramatic sunrise, magical atmosphere",
+            "Product photo": "Luxury smartwatch product photography on a reflective black surface, studio lighting, premium advertisement"
+          };
+          promptInput.value = examples[chip.textContent.trim()] || chip.textContent.trim();
+          resizePromptInput();
+          promptInput.focus();
+        });
+      });
+
+      enhanceButton.addEventListener("click", () => {
+        const value = promptInput.value.trim();
+        if (!value) {
+          showToast("Write a basic prompt first, then use Magic Enhance.", "error");
+          promptInput.focus();
+          return;
+        }
+
+        const enhancement = "ultra detailed, masterpiece, 8k resolution, professional composition, cinematic lighting, sharp focus, rich textures";
+        if (!value.toLowerCase().includes("masterpiece")) {
+          promptInput.value = `${value}, ${enhancement}`;
+          resizePromptInput();
+          showToast("Professional visual keywords were added.", "success");
+        } else {
+          showToast("This prompt already looks enhanced.", "info");
+        }
+      });
+
+      // ---------- API generation ----------
+      function buildImageUrl(prompt, width, height, seed, model, negative) {
+        const style = styleSelect.value;
+        let finalPrompt = `${prompt}, ${style} style`;
+
+        if (negative.trim()) {
+          finalPrompt += `. Avoid: ${negative.trim()}`;
+        }
+
+        return `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=${width}&height=${height}&seed=${seed}&model=${encodeURIComponent(model)}&nologo=true`;
+      }
+
+      async function generateImage() {
+        if (state.isLoading) return;
+
+        const prompt = promptInput.value.trim();
+        if (!prompt) {
+          showToast("Please enter a prompt before generating.", "error");
+          promptInput.focus();
+          return;
+        }
+
+        const ratio = ratioMap[state.ratio];
+        const seed = seedInput.value.trim() === "" ? randomSeed() : Math.abs(parseInt(seedInput.value, 10) || randomSeed());
+        const model = modelSelect.value;
+        const negative = negativePrompt.value.trim();
+        const imageUrl = buildImageUrl(prompt, ratio.width, ratio.height, seed, model, negative);
+
+        seedInput.value = seed;
+        setLoading(true);
+        closeMobileSidebar();
+
+        try {
+          await preloadImage(imageUrl);
+
+          state.currentImageUrl = imageUrl;
+          state.currentPrompt = prompt;
+
+          resultImage.src = imageUrl;
+          resultImage.alt = `AI generated image: ${prompt}`;
+          resultImage.classList.remove("hidden");
+          resultActions.classList.remove("hidden");
+          resultActions.classList.add("flex");
+          resultBadge.textContent = `${ratio.label} • ${model.toUpperCase()} • Seed ${seed}`;
+          resultBadge.classList.remove("hidden");
+
+          const item = {
+            id: `${Date.now()}-${seed}`,
+            url: imageUrl,
+            prompt,
+            ratio: state.ratio,
+            style: styleSelect.value,
+            model,
+            seed,
+            negative,
+            createdAt: new Date().toISOString()
+          };
+
+          state.currentHistoryId = item.id;
+          state.history.unshift(item);
+          state.history = state.history.slice(0, 24);
+          saveHistory();
+          renderHistory();
+          showToast("Your image is ready.", "success");
+        } catch (error) {
+          console.error(error);
+          resetCanvas();
+          showToast("Image generation failed. Check your internet connection and try again.", "error");
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function preloadImage(url) {
+        return new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => resolve(url);
+          image.onerror = () => reject(new Error("Image API request failed."));
+          image.src = url;
+        });
+      }
+
+      generateButton.addEventListener("click", generateImage);
+
+      // ---------- History ----------
+      function renderHistory() {
+        historyGrid.innerHTML = "";
+        emptyHistory.classList.toggle("hidden", state.history.length > 0);
+
+        state.history.forEach(item => {
+          const button = document.createElement("button");
+          button.className = `history-item group relative aspect-square overflow-hidden rounded-xl border border-white/10 bg-slate-900 ${item.id === state.currentHistoryId ? "active" : ""}`;
+          button.title = item.prompt;
+          button.innerHTML = `
+            <img src="${item.url}" alt="${escapeHTML(item.prompt)}" class="h-full w-full object-cover transition duration-500 group-hover:scale-110" loading="lazy" />
+            <span class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition group-hover:opacity-100"></span>
+            <span class="absolute inset-x-2 bottom-2 truncate text-left text-[9px] font-semibold text-white opacity-0 transition group-hover:opacity-100">${escapeHTML(item.prompt)}</span>
+          `;
+
+          button.addEventListener("click", () => restoreHistoryItem(item));
+          historyGrid.appendChild(button);
+        });
+      }
+
+      function restoreHistoryItem(item) {
+        state.currentImageUrl = item.url;
+        state.currentPrompt = item.prompt;
+        state.currentHistoryId = item.id;
+
+        promptInput.value = item.prompt;
+        styleSelect.value = item.style || "Cinematic";
+        modelSelect.value = item.model || "flux";
+        seedInput.value = item.seed ?? "";
+        negativePrompt.value = item.negative || "";
+        setRatio(item.ratio || "square");
+        resizePromptInput();
+
+        placeholderState.classList.add("hidden");
+        loadingState.classList.add("hidden");
+        resultImage.src = item.url;
+        resultImage.alt = `AI generated image: ${item.prompt}`;
+        resultImage.classList.remove("hidden");
+        resultActions.classList.remove("hidden");
+        resultActions.classList.add("flex");
+        resultBadge.textContent = `${ratioMap[item.ratio || "square"].label} • ${(item.model || "flux").toUpperCase()} • Seed ${item.seed}`;
+        resultBadge.classList.remove("hidden");
+
+        renderHistory();
+        closeMobileSidebar();
+      }
+
+      clearHistoryButton.addEventListener("click", () => {
+        if (!state.history.length) {
+          showToast("History is already empty.", "info");
+          return;
+        }
+
+        const confirmed = window.confirm("Clear all saved image history from this browser?");
+        if (!confirmed) return;
+
+        state.history = [];
+        saveHistory();
+        renderHistory();
+        resetCanvas();
+        showToast("Generation history cleared.", "success");
+      });
+
+      // ---------- Download / Share ----------
+      downloadButton.addEventListener("click", async () => {
+        if (!state.currentImageUrl) return;
+
+        downloadButton.disabled = true;
+        downloadButton.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Preparing';
+
+        try {
+          const response = await fetch(state.currentImageUrl);
+          if (!response.ok) throw new Error("Download request failed.");
+
+          const blob = await response.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          const anchor = document.createElement("a");
+          anchor.href = objectUrl;
+          anchor.download = `prismai-${Date.now()}.png`;
+          document.body.appendChild(anchor);
+          anchor.click();
+          anchor.remove();
+          URL.revokeObjectURL(objectUrl);
+          showToast("Image download started.", "success");
+        } catch (error) {
+          console.warn(error);
+          window.open(state.currentImageUrl, "_blank", "noopener,noreferrer");
+          showToast("The image opened in a new tab. Save it from there.", "info");
+        } finally {
+          downloadButton.disabled = false;
+          downloadButton.innerHTML = '<i class="ph ph-download-simple"></i> Download';
+        }
+      });
+
+      shareButton.addEventListener("click", async () => {
+        if (!state.currentImageUrl) return;
+
+        const shareData = {
+          title: "PrismAI Creation",
+          text: state.currentPrompt,
+          url: state.currentImageUrl
+        };
+
+        try {
+          if (navigator.share) {
+            await navigator.share(shareData);
+          } else {
+            await navigator.clipboard.writeText(`${state.currentPrompt}\n${state.currentImageUrl}`);
+            showToast("Image link and prompt copied to clipboard.", "success");
+          }
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            try {
+              await navigator.clipboard.writeText(state.currentImageUrl);
+              showToast("Image link copied to clipboard.", "success");
+            } catch {
+              showToast("Sharing is not supported in this browser.", "error");
+            }
+          }
+        }
+      });
+
+      clearCanvasButton.addEventListener("click", resetCanvas);
+
+      // ---------- Scroll reveal ----------
+      const observer = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12 }
+      );
+
+      document.querySelectorAll(".reveal").forEach(element => observer.observe(element));
+
+      // Card cursor glow
+      document.querySelectorAll(".feature-card, .blog-card").forEach(card => {
+        card.addEventListener("mousemove", event => {
+          const rect = card.getBoundingClientRect();
+          card.style.setProperty("--x", `${event.clientX - rect.left}px`);
+          card.style.setProperty("--y", `${event.clientY - rect.top}px`);
+        });
+      });
+
+      // Newsletter demo
+      document.getElementById("newsletterForm").addEventListener("submit", event => {
+        event.preventDefault();
+        event.currentTarget.reset();
+        showToast("Thanks! You are on the creative newsletter list.", "success");
+      });
+
+      // Prevent demo links from jumping
+      document.querySelectorAll('a[href="#"]').forEach(link => {
+        link.addEventListener("click", event => event.preventDefault());
+      });
+
+      // Escape key behavior
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          if (!sidebarOverlay.classList.contains("hidden")) {
+            closeMobileSidebar();
+          } else if (!appInterface.classList.contains("hidden")) {
+            closeApp();
+          }
+        }
+      });
+
+      // Initial render
+      setRatio("square");
+      renderHistory();
+      resizePromptInput();
+    })();
+  </script>
+</body>
+</html>
